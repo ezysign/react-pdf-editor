@@ -12,6 +12,7 @@ const editorTheme: DefaultTheme = {
     bgColor: '#f6f8fa',
     buttonColor: '#4537de',
     buttonTextColor: '#FFF',
+    selectedBoxColor: '#3c97fe',
   },
 }
 
