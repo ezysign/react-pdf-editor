@@ -13,6 +13,7 @@ declare module 'styled-components' {
       bgColor: string
       buttonColor: string
       buttonTextColor: string
+      selectedBoxColor: string
     }
   }
 }
