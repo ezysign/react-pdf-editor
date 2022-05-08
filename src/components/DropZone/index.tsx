@@ -26,7 +26,6 @@ export default ({ onDrop }: { onDrop: (File: any) => void }) => {
     },
     multiple: false,
     onDrop: (e) => onDrop(e.at(0)),
-    // onDropAccepted: (e) => console.log(e),
   })
 
   return (

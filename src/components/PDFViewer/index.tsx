@@ -23,14 +23,39 @@ const canResizable = (isResize: boolean) => {
   }
 }
 
-const useCanvas = (pdfDoc: any, page: number, callback: any) => {
+export const useCanvasHeight = (pdfDoc: any, callback: any) => {
+  const canvasRef = React.useRef(null)
+
+  useEffect(() => {
+    const canvasRender = async (p: number) => {
+      const item = await pdfDoc.getPage(p)
+      const viewport = item.getViewport({ scale: 3 })
+
+      return viewport?.height
+    }
+    if (pdfDoc !== null || pdfDoc !== undefined) {
+      const a = [...Array(pdfDoc?.numPages || 0)].map((_, i) => canvasRender(i + 1))
+
+      Promise.all(a).then((result) => {
+        callback(result.reduce((a, b) => a + b, 0))
+      })
+    }
+  }, [pdfDoc])
+
+  return canvasRef
+}
+
+const useCanvas = (pdfDoc: any, page: number, scale: number, callback: any) => {
   const canvasRef = React.useRef(null)
 
   useEffect(() => {
     const canvasRender = async () => {
       const item = await pdfDoc.getPage(page)
-      const viewport = item.getViewport({ scale: 3 })
+      const viewport = item.getViewport({ scale: scale })
       const canvas = canvasRef.current
+
+      const context = canvas.getContext('2d')
+      context.clearRect(0, 0, viewport.width, viewport.height)
 
       canvas.width = viewport.width
       canvas.height = viewport.height
@@ -41,15 +66,15 @@ const useCanvas = (pdfDoc: any, page: number, callback: any) => {
       callback([canvas, canvas.getContext('2d')])
     }
     canvasRender()
-  }, [page, canvasRef, pdfDoc])
+  }, [page, canvasRef, pdfDoc, scale])
 
   return canvasRef
 }
 
-export default ({ pdfPath, page, pdfDoc }: { pdfPath: string; page: number; pdfDoc: any }) => {
+export default ({ page, pdfDoc, scale }: { page: number; pdfDoc: any; scale: number }) => {
   const [canvasObject, setCanvas] = useState(null)
 
-  const canvasRef = useCanvas(pdfDoc, page, ([canvas]: any[]) => {
+  const canvasRef = useCanvas(pdfDoc, page, scale, ([canvas]: any[]) => {
     setCanvas(canvas)
   })
 
@@ -59,12 +84,17 @@ export default ({ pdfPath, page, pdfDoc }: { pdfPath: string; page: number; pdfD
         justifyContent="center"
         display="flex"
         background={editorTheme.colors.bgColor}
-        padding="44px 0 44px 0"
-        margin="0em 0 1em 0"
+        padding="10px 0 10px 0"
+        margin="0em 0 0.25em 0"
       >
         <canvas ref={canvasRef} />
         {canvasRef.current !== null && (
-          <DraggableWrapper width={`${canvasObject?.width}px`} height={`${canvasObject?.height}px`} position="absolute">
+          <DraggableWrapper
+            width={`${canvasObject?.width}px`}
+            boxShadow={`${editorTheme.pdfBoxShadow}`}
+            height={`${canvasObject?.height}px`}
+            position="absolute"
+          >
             <DragResizeContainer
               resizeProps={{
                 minWidth: 10,
