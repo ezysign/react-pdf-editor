@@ -6,6 +6,7 @@ declare module 'styled-components' {
   export interface DefaultTheme {
     borderRadius: string
     boxShadow: string
+    pdfBoxShadow: string
     fontFamily: string
     colors: {
       main: string
@@ -14,6 +15,8 @@ declare module 'styled-components' {
       buttonColor: string
       buttonTextColor: string
       selectedBoxColor: string
+      grey1: string
+      grey2: string
     }
   }
 }
