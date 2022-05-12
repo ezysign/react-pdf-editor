@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import { editorTheme } from '../../theme/editor-theme'
 import DragResizeContainer from 'react-drag-resize'
 
@@ -72,11 +72,15 @@ const useCanvas = (pdfDoc: any, page: number, scale: number, callback: any) => {
 }
 
 export default ({ page, pdfDoc, scale }: { page: number; pdfDoc: any; scale: number }) => {
-  const [canvasObject, setCanvas] = useState(null)
-
-  const canvasRef = useCanvas(pdfDoc, page, scale, ([canvas]: any[]) => {
-    setCanvas(canvas)
-  })
+  const wrapperRef = React.useRef(null)
+  const onCanvasReceived = useCallback(
+    ([canvas]: any[]) => {
+      wrapperRef.current.style.width = `${canvas?.width}px`
+      wrapperRef.current.style.height = `${canvas?.height}px`
+    },
+    [scale, page, pdfDoc]
+  )
+  const canvasRef = useCanvas(pdfDoc, page, scale, onCanvasReceived)
 
   return (
     <>
@@ -88,43 +92,38 @@ export default ({ page, pdfDoc, scale }: { page: number; pdfDoc: any; scale: num
         margin="0em 0 0.25em 0"
       >
         <canvas ref={canvasRef} />
-        {canvasRef.current !== null && (
-          <DraggableWrapper
-            width={`${canvasObject?.width}px`}
-            boxShadow={`${editorTheme.pdfBoxShadow}`}
-            height={`${canvasObject?.height}px`}
-            position="absolute"
+
+        <DraggableWrapper ref={wrapperRef} boxShadow={`${editorTheme.pdfBoxShadow}`} position="absolute">
+          <DragResizeContainer
+            resizeProps={{
+              minWidth: 10,
+              minHeight: 10,
+              enable: canResizable(true),
+            }}
+            layout={layout}
+            dragProps={{ disabled: false }}
+            onLayoutChange={(e: any) => console.log(e)}
+            scale={1}
           >
-            <DragResizeContainer
-              resizeProps={{
-                minWidth: 10,
-                minHeight: 10,
-                enable: canResizable(true),
-              }}
-              layout={layout}
-              dragProps={{ disabled: false }}
-              onLayoutChange={(e: any) => console.log(e)}
-              scale={1}
-            >
-              {layout.map((single) => {
-                return (
-                  <SelectedBox
-                    key={single.key}
-                    height="100%"
-                    width="100%"
-                    position="absolute"
-                    top="15px"
-                    bottom="15px"
-                    right="15px"
-                    left="15px"
-                  >
-                    {single.key}
-                  </SelectedBox>
-                )
-              })}
-            </DragResizeContainer>
-          </DraggableWrapper>
-        )}
+            {layout.map((single) => {
+              return (
+                <SelectedBox
+                  key={single.key}
+                  height="100%"
+                  width="100%"
+                  position="absolute"
+                  top="15px"
+                  bottom="15px"
+                  right="15px"
+                  left="15px"
+                >
+                  {single.key}
+                </SelectedBox>
+              )
+            })}
+          </DragResizeContainer>
+        </DraggableWrapper>
+
         {/* {canvasRef && <img src={canvasRef?.current?.toDataURL()} />} */}
         {/* {Boolean(pdfDocument && pdfDocument.numPages) && (
         <nav>

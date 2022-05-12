@@ -11,4 +11,6 @@ const CustomButton = styled.button`
   border-radius: 5px;
   align-items: center;
 `
-export default ({ children }: { children: JSX.Element | string }) => <CustomButton>{children}</CustomButton>
+export default (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <CustomButton {...props}>{props.children}</CustomButton>
+)
