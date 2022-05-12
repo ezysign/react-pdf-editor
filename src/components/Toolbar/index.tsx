@@ -41,8 +41,8 @@ export default ({
       />
     </Box>
     <Box>
-      <IconButton>
-        <FontAwesomeIcon icon={FasIcons.faExpandArrowsAlt} color="black" onClick={onExpandClick} />
+      <IconButton onClick={onExpandClick}>
+        <FontAwesomeIcon icon={FasIcons.faExpandArrowsAlt} color="black" />
       </IconButton>
     </Box>
   </Box>
